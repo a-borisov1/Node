@@ -1,17 +1,29 @@
 const express = require('express');
-const MongoClient = require('mongodb').MongoClient;
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./config/db');
+const mongoose = require('mongoose');
+const controller = require('./app/routes/note_routes');
 const app = express();
+
+
+mongoose.connect(db.url, function (err, res) {
+
+    if (err) throw err;
+
+
+});
+
+app.use(cors())
+app.use(bodyParser.json());
 
 const port = 8000;
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/notes', controller);
 
-MongoClient.connect(db.url, (err, database) => {
-    const db = database.db('notes');
-    if (err) return console.log(err)
-    require('./app/routes')(app, db);
-    app.listen(port, () => {
-        console.log('We are live on ' + port);
-    });
+app.listen(port, (err) => {
+    console.log('We are live on ' + port);
+    if (err) {
+        throw err
+    }
 })
